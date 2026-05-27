@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Simulacro EXANI-II Versión 3 — Asesorías Académicas Izamal</title>
+<script>
+window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']]},
+  options:{skipHtmlTags:['script','noscript','style','textarea']},
+  startup:{typeset:false}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js"
+        crossorigin="anonymous"></script>
+<style>
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pm:#1a5276;--cl:#1e8449;--ri:#7d6608;
+  --bg:#f0f4f8;--card:#fff;--txt:#1c2833;--sub:#566573;
+  --rad:14px;--shadow:0 4px 18px rgba(0,0,0,.10);
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
+  color:var(--txt);min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;padding:14px 12px;}
+
+/* ── LOGO ── */
+.logo-bar{width:100%;max-width:740px;display:flex;align-items:center;gap:13px;
+  background:#fff;border-radius:var(--rad);box-shadow:var(--shadow);
+  padding:11px 18px;margin-bottom:16px;}
+.logo-icon{width:52px;height:52px;flex-shrink:0;border-radius:10px;
+  background:linear-gradient(135deg,#1a5276,#1e8449);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;font-size:8.5px;font-weight:700;text-align:center;line-height:1.45;letter-spacing:.2px}
+.logo-text h1{font-size:.97rem;font-weight:700}
+.logo-text p{font-size:.73rem;color:var(--sub)}
+
+/* ── CARD ── */
+.card{width:100%;max-width:740px;background:var(--card);
+  border-radius:var(--rad);box-shadow:var(--shadow);padding:26px 22px;}
+
+/* ── HOME ── */
+#screen-home h2{font-size:1.3rem;text-align:center;margin-bottom:5px}
+.home-sub{text-align:center;color:var(--sub);margin-bottom:22px;font-size:.88rem;line-height:1.6}
+.area-cards{display:flex;flex-direction:column;gap:11px}
+.area-btn{border:none;border-radius:10px;padding:15px 18px;cursor:pointer;
+  color:#fff;font-size:.93rem;font-weight:600;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:opacity .2s,transform .1s}
+.area-btn:hover{opacity:.88}
+.area-btn:active{transform:scale(.98)}
+.area-btn .badge{background:rgba(255,255,255,.25);border-radius:20px;
+  padding:3px 10px;font-size:.78rem;font-weight:600;white-space:nowrap}
+.area-btn.pm{background:var(--pm)}.area-btn.cl{background:var(--cl)}.area-btn.ri{background:var(--ri)}
+.area-btn.done{opacity:.4;cursor:default}
+.btn-final{display:none;margin-top:16px;width:100%;padding:13px;border-radius:10px;
+  border:none;background:#2e4057;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer}
+.btn-final.show{display:block}
+.btn-final:hover{opacity:.88}
+
+/* ── EXAMEN LAYOUT ── */
+#screen-exam{padding:0}
+.exam-header{padding:18px 22px 0;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;margin-bottom:14px}
+.area-pill{font-size:.8rem;font-weight:700;color:#fff;
+  padding:5px 14px;border-radius:20px;line-height:1.3;text-align:center;max-width:55%}
+.timer-box{font-size:1.08rem;font-weight:800;padding:5px 15px;border-radius:20px;
+  background:#f0f4f8;color:var(--txt);min-width:72px;text-align:center;
+  transition:background .3s,color .3s;flex-shrink:0}
+.timer-box.warn{background:#fdebd0;color:#d35400}
+.timer-box.danger{background:#f9ebea;color:#c0392b;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+.progress-wrap{margin:0 22px 4px;height:5px;background:#dde3ea;border-radius:3px;overflow:hidden}
+.progress-bar{height:5px;border-radius:3px;transition:width .35s}
+
+/* ── GRID DE NAVEGACIÓN ── */
+.nav-section{padding:10px 22px 14px;border-bottom:1px solid #eef0f3}
+.nav-label{font-size:.73rem;color:var(--sub);margin-bottom:7px;font-weight:600;letter-spacing:.3px}
+.nav-grid{display:flex;flex-wrap:wrap;gap:6px}
+.nav-btn{width:34px;height:34px;border-radius:8px;border:2px solid #dde3ea;
+  background:#fff;font-size:.82rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .18s;color:var(--txt);flex-shrink:0}
+.nav-btn:hover{border-color:#aab4c4;background:#f7f9fb}
+.nav-btn.answered{background:#2e86c1;border-color:#2e86c1;color:#fff}
+.nav-btn.wrong-nav{background:#e74c3c;border-color:#e74c3c;color:#fff}
+.nav-btn.current{border-width:3px;transform:scale(1.12)}
+.nav-btn.current:not(.answered):not(.wrong-nav){border-color:var(--area-col)}
+
+/* ── CONTENIDO PREGUNTA ── */
+.exam-body{padding:16px 22px 22px}
+
+/* TEXTO BASE CL */
+.texto-base{background:#f8fdf9;border-left:4px solid #1e8449;
+  padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:18px;
+  font-size:.88rem;line-height:1.75;color:#2c3e50}
+.texto-base-toggle{display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;margin-bottom:14px;
+  padding:10px 14px;background:#eafaf1;border-radius:8px;border:1px solid #a9dfbf}
+.texto-base-toggle span{font-size:.85rem;font-weight:700;color:#1e8449}
+.texto-base-toggle .chevron{font-size:.8rem;color:#1e8449;transition:transform .2s}
+.texto-base-toggle.open .chevron{transform:rotate(180deg)}
+.texto-contenido{display:none}
+.texto-contenido.open{display:block}
+
+.q-num{font-size:.77rem;color:var(--sub);margin-bottom:8px;font-weight:600}
+.q-text{font-size:.98rem;line-height:1.7;margin-bottom:20px}
+.options{display:flex;flex-direction:column;gap:10px}
+.opt-btn{border:2px solid #dde3ea;border-radius:10px;background:#fff;
+  padding:12px 15px;text-align:left;cursor:pointer;font-size:.93rem;line-height:1.5;
+  transition:border-color .18s,background .18s;
+  display:flex;align-items:flex-start;gap:10px;width:100%}
+.opt-btn:hover:not(:disabled){border-color:#aab4c4;background:#f7f9fb}
+.opt-letter{min-width:26px;height:26px;border-radius:50%;background:#eef0f3;
+  font-weight:700;font-size:.82rem;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;margin-top:2px}
+.opt-btn.selected{border-color:#5d8fcc;background:#ebf2fb}
+.opt-btn.selected .opt-letter{background:#5d8fcc;color:#fff}
+.opt-btn.correct{border-color:#27ae60;background:#eafaf1}
+.opt-btn.correct .opt-letter{background:#27ae60;color:#fff}
+.opt-btn.wrong{border-color:#e74c3c;background:#fdf0ef}
+.opt-btn.wrong .opt-letter{background:#e74c3c;color:#fff}
+.opt-btn:disabled{cursor:default}
+
+.explanation{display:none;margin-top:16px;background:#f4f6f7;
+  border-left:4px solid #27ae60;padding:11px 15px;
+  border-radius:0 8px 8px 0;font-size:.86rem;line-height:1.65;color:#2c3e50}
+.explanation.show{display:block}
+.explanation.fail{border-left-color:#e74c3c}
+
+/* BARRA INFERIOR */
+.exam-footer{padding:0 22px 20px;display:flex;gap:9px;align-items:center;margin-top:16px}
+.btn-nav{flex:1;padding:11px 6px;border-radius:10px;border:2px solid #dde3ea;
+  background:#fff;font-size:.88rem;font-weight:700;cursor:pointer;color:var(--txt);
+  transition:all .18s}
+.btn-nav:hover{border-color:#aab4c4;background:#f7f9fb}
+.btn-nav:disabled{opacity:.35;cursor:default}
+.btn-entregar{padding:11px 18px;border-radius:10px;border:none;
+  font-size:.88rem;font-weight:700;cursor:pointer;color:#fff;
+  background:#e74c3c;transition:opacity .18s;white-space:nowrap}
+.btn-entregar:hover{opacity:.88}
+
+/* ── TIMEOUT ── */
+#screen-timeout{text-align:center}
+#screen-timeout h2{font-size:1.4rem;margin-bottom:10px;color:#c0392b}
+#screen-timeout p{color:var(--sub);margin-bottom:22px;line-height:1.6}
+
+/* ── RESULTADOS ── */
+#screen-results h2{text-align:center;font-size:1.3rem;margin-bottom:18px}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:22px}
+.score-card{border-radius:10px;padding:13px 8px;text-align:center;color:#fff}
+.sc-label{font-size:.7rem;font-weight:700;opacity:.85;margin-bottom:3px}
+.sc-val{font-size:1.45rem;font-weight:800}
+.sc-sub{font-size:.7rem;opacity:.8}
+.chart-wrap{margin-bottom:22px}
+.chart-wrap h3{font-size:.9rem;margin-bottom:11px;font-weight:700}
+.bar-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.bar-label{width:36px;font-size:.78rem;font-weight:700;flex-shrink:0}
+.bar-track{flex:1;height:22px;background:#eef0f3;border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;display:flex;align-items:center;
+  padding-left:7px;color:#fff;font-size:.75rem;font-weight:700;transition:width .7s ease}
+.bar-pct{width:38px;font-size:.8rem;font-weight:700;text-align:right;flex-shrink:0}
+.review-section h3{font-size:.9rem;margin-bottom:12px;font-weight:700}
+.rev-area-hdr{font-size:.86rem;font-weight:700;margin:14px 0 8px;
+  padding-bottom:4px;border-bottom:2px solid currentColor}
+.rev-item{border:1px solid #dde3ea;border-radius:10px;padding:13px 15px;margin-bottom:9px}
+.rev-header{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.rev-badge{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px}
+.rev-badge.ok{background:#d5f5e3;color:#1e8449}
+.rev-badge.fail{background:#fce4e4;color:#c0392b}
+.rev-badge.skip{background:#f0f0f0;color:#888}
+.rev-num{font-size:.72rem;color:#aaa}
+.rev-q{font-size:.86rem;line-height:1.55;margin-bottom:5px}
+.rev-ans{font-size:.8rem;color:var(--sub)}
+.rev-exp{font-size:.8rem;color:#2c3e50;margin-top:6px;border-top:1px solid #eee;padding-top:5px;line-height:1.55}
+.btn-home{width:100%;padding:12px;border-radius:10px;border:none;
+  background:#2e4057;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;margin-top:16px}
+.btn-home:hover{opacity:.88}
+
+/* ── MODAL CONFIRMAR ENTREGA ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);
+  display:none;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:26px 22px;max-width:360px;width:100%;
+  box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal h3{font-size:1.1rem;margin-bottom:10px}
+.modal p{font-size:.88rem;color:var(--sub);margin-bottom:20px;line-height:1.6}
+.modal-btns{display:flex;gap:10px}
+.modal-btns button{flex:1;padding:11px;border-radius:9px;border:none;
+  font-size:.9rem;font-weight:700;cursor:pointer}
+.btn-cancel{background:#eef0f3;color:var(--txt)}
+.btn-confirm{background:#e74c3c;color:#fff}
+.btn-cancel:hover{background:#dde3ea}
+.btn-confirm:hover{opacity:.88}
+
+@media(max-width:480px){
+  body{padding:10px 7px}
+  .card{padding:18px 13px}
+  .exam-header,.exam-body,.exam-footer,.nav-section,.progress-wrap{
+    padding-left:14px;padding-right:14px}
+  .score-grid{gap:7px}
+  .sc-val{font-size:1.2rem}
+  .nav-btn{width:31px;height:31px;font-size:.78rem}
+}
+
+</style>
+</head>
+<body>
+
+<!-- LOGO -->
+<div class="logo-bar">
+  <div class="logo-icon">ASESORÍAS<br>ACADÉMICAS<br>IZAMAL</div>
+  <div class="logo-text">
+    <h1>Asesorías Académicas Izamal</h1>
+    <p>Simulacro EXANI-II &nbsp;·&nbsp; Versión 3 de 5</p>
+  </div>
+</div>
+
+<!-- ══ HOME ══════════════════════════════════════════ -->
+<div class="card" id="screen-home">
+  <h2>Simulacro de práctica — Versión 3</h2>
+  <p class="home-sub">Selecciona un área para comenzar. Puedes navegar libremente entre preguntas
+    y regresar a las que dejaste pendientes antes de entregar.</p>
+  <div class="area-cards">
+    <button class="area-btn pm" id="btn-PM" onclick="startArea('PM')">
+      <span>📐&nbsp; Pensamiento Matemático</span>
+      <span class="badge">15 preguntas · 25 min</span>
+    </button>
+    <button class="area-btn ri" id="btn-RI" onclick="startArea('RI')">
+      <span>✍️&nbsp; Redacción Indirecta</span>
+      <span class="badge">15 preguntas · 20 min</span>
+    </button>
+    <button class="area-btn cl" id="btn-CL" onclick="startArea('CL')">
+      <span>📖&nbsp; Comprensión Lectora</span>
+      <span class="badge">10 preguntas · 15 min</span>
+    </button>
+  </div>
+  <button class="btn-final" id="btn-go-results" onclick="showResults()">
+    📊&nbsp; Ver resultados finales
+  </button>
+</div>
+
+<!-- ══ EXAMEN ═════════════════════════════════════════ -->
+<div class="card" id="screen-exam" style="display:none;padding:0">
+
+  <div class="exam-header">
+    <div class="area-pill" id="exam-label">Área</div>
+    <div class="timer-box" id="timer-box">25:00</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+  </div>
+
+  <!-- Grid de navegación -->
+  <div class="nav-section">
+    <div class="nav-label">PREGUNTAS — Verde: contestada · Gris: pendiente</div>
+    <div class="nav-grid" id="nav-grid"></div>
+  </div>
+
+  <!-- Cuerpo de la pregunta -->
+  <div class="exam-body">
+    <!-- Texto base CL (colapsable) -->
+    <div id="texto-toggle-wrap" style="display:none">
+      <div class="texto-base-toggle" id="texto-toggle" onclick="toggleTexto()">
+        <span>📄 Ver texto de lectura</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="texto-contenido" id="texto-contenido"></div>
+    </div>
+
+    <div class="q-num" id="q-num">Pregunta 1 de 15</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="options"></div>
+    <div class="explanation" id="explanation"></div>
+  </div>
+
+  <!-- Botones de navegación -->
+  <div class="exam-footer">
+    <button class="btn-nav" id="btn-prev" onclick="goTo(STATE.qIdx-1)">← Anterior</button>
+    <button class="btn-nav" id="btn-next-nav" onclick="goTo(STATE.qIdx+1)">Siguiente →</button>
+    <button class="btn-entregar" id="btn-entregar" style="display:none" onclick="pedirConfirmar()">Entregar</button>
+  </div>
+</div>
+
+<!-- ══ TIMEOUT ════════════════════════════════════════ -->
+<div class="card" id="screen-timeout" style="display:none">
+  <h2>⏰ Tiempo agotado</h2>
+  <p id="timeout-msg">Se agotó el tiempo.<br>Las preguntas sin responder se marcaron como incorrectas.</p>
+  <button class="btn-home" onclick="afterTimeout()">Ver resultados →</button>
+</div>
+
+<!-- ══ RESULTADOS ════════════════════════════════════ -->
+<div class="card" id="screen-results" style="display:none">
+  <h2>📊 Resultados del simulacro</h2>
+  <div class="score-grid" id="score-grid"></div>
+  <div class="chart-wrap"><h3>Desempeño por área</h3><div id="chart"></div></div>
+  <div class="review-section"><h3>Revisión de respuestas</h3><div id="review-list"></div></div>
+  <button class="btn-home" onclick="goHome()">🏠 Volver al inicio</button>
+</div>
+
+<!-- ══ MODAL CONFIRMAR ═══════════════════════════════ -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h3>¿Entregar esta área?</h3>
+    <p id="modal-msg">Tienes preguntas sin responder. Puedes regresar a contestarlas o entregar ahora.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmarEntrega()">Sí, entregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DATOS ══════════════════════════════════════════ -->
+<script>
+const REACTIVOS_PM = [{"q": "¿Cuánto es $\\dfrac{2}{3} + \\dfrac{3}{4}$?", "opt_a": "$\\dfrac{5}{7}$", "opt_b": "$\\dfrac{17}{12}$", "opt_c": "$\\dfrac{6}{12}$", "answer": "b", "exp": "Se busca el mínimo común múltiplo de 3 y 4: MCM = 12. Entonces $\\frac{2}{3}=\\frac{8}{12}$ y $\\frac{3}{4}=\\frac{9}{12}$. Suma: $\\frac{8+9}{12}=\\frac{17}{12}$."}, {"q": "¿Cuánto es el 15% de 240?", "opt_a": "36", "opt_b": "32", "opt_c": "40", "answer": "a", "exp": "$15\\% \\times 240 = 0.15 \\times 240 = 36$."}, {"q": "¿Cuáles son las soluciones de la ecuación $x^2 - 5x + 6 = 0$?", "opt_a": "$x = 1$ y $x = 6$", "opt_b": "$x = -2$ y $x = -3$", "opt_c": "$x = 2$ y $x = 3$", "answer": "c", "exp": "Factorizando: $(x-2)(x-3)=0$, por lo que $x=2$ o $x=3$. Verificación: $4-10+6=0$ ✓ y $9-15+6=0$ ✓."}, {"q": "Si $x + y = 10$ y $x - y = 4$, ¿cuánto vale $x$?", "opt_a": "$x = 6$", "opt_b": "$x = 7$", "opt_c": "$x = 8$", "answer": "b", "exp": "Sumando las dos ecuaciones: $2x = 14 \\Rightarrow x = 7$. Verificación: $7+3=10$ ✓ y $7-3=4$ ✓."}, {"q": "¿Cuánto es $2^5 \\div 2^3$?", "opt_a": "4", "opt_b": "8", "opt_c": "2", "answer": "a", "exp": "Propiedad de potencias: $\\frac{a^m}{a^n}=a^{m-n}$. Entonces $2^5 \\div 2^3 = 2^{5-3}=2^2=4$."}, {"q": "¿Cuál es el área de un triángulo con base de 8 cm y altura de 5 cm?", "opt_a": "$40\\text{ cm}^2$", "opt_b": "$13\\text{ cm}^2$", "opt_c": "$20\\text{ cm}^2$", "answer": "c", "exp": "Área del triángulo $= \\frac{b \\times h}{2} = \\frac{8 \\times 5}{2} = 20\\text{ cm}^2$."}, {"q": "¿Cuál es la mediana del conjunto de datos: 3, 7, 2, 9, 5?", "opt_a": "$3$", "opt_b": "$5$", "opt_c": "$7$", "answer": "b", "exp": "Se ordenan los datos de menor a mayor: 2, 3, <strong>5</strong>, 7, 9. Con 5 datos, la mediana es el valor central (posición 3): 5."}, {"q": "Una bolsa contiene 4 bolas rojas, 3 azules y 3 verdes. Si se saca una bola al azar, ¿cuál es la probabilidad de que sea roja?", "opt_a": "$\\dfrac{2}{5}$", "opt_b": "$\\dfrac{1}{4}$", "opt_c": "$\\dfrac{3}{10}$", "answer": "a", "exp": "Total de bolas = 4+3+3 = 10. Bolas rojas = 4. $P(\\text{roja})=\\frac{4}{10}=\\frac{2}{5}$."}, {"q": "¿Cuál es la pendiente de la recta que pasa por los puntos $(1,1)$ y $(4,7)$?", "opt_a": "$m = 3$", "opt_b": "$m = 2$", "opt_c": "$m = \\dfrac{1}{2}$", "answer": "b", "exp": "$m = \\dfrac{y_2 - y_1}{x_2 - x_1} = \\dfrac{7-1}{4-1} = \\dfrac{6}{3} = 2$."}, {"q": "Para la función $f(x) = -x^2 + 4x - 3$, ¿cuál es el valor máximo?", "opt_a": "$f(2) = -1$", "opt_b": "$f(2) = 3$", "opt_c": "$f(2) = 1$", "answer": "c", "exp": "El vértice de $f(x)=ax^2+bx+c$ está en $x=-\\frac{b}{2a}=-\\frac{4}{2(-1)}=2$. Valor máximo: $f(2)=-4+8-3=1$."}, {"q": "En un triángulo, dos ángulos miden 40° y 75°. ¿Cuánto mide el tercer ángulo?", "opt_a": "65°", "opt_b": "75°", "opt_c": "55°", "answer": "a", "exp": "La suma de los ángulos interiores de un triángulo es 180°. Tercer ángulo $= 180° - 40° - 75° = 65°$."}, {"q": "¿Cuánto es $\\sqrt{144} + \\sqrt{36}$?", "opt_a": "$\\sqrt{180}$", "opt_b": "$18$", "opt_c": "$15$", "answer": "b", "exp": "$\\sqrt{144}=12$ (pues $12^2=144$) y $\\sqrt{36}=6$ (pues $6^2=36$). Suma: $12+6=18$."}, {"q": "Si 3 kg de manzanas cuestan $45, ¿cuánto costarán 7 kg?", "opt_a": "$105", "opt_b": "$90", "opt_c": "$120", "answer": "a", "exp": "Regla de tres directa: $\\frac{3}{45} = \\frac{7}{x} \\Rightarrow x = \\frac{7 \\times 45}{3} = \\frac{315}{3} = 105$."}, {"q": "¿Qué indica una desviación estándar grande en un conjunto de datos?", "opt_a": "Que todos los datos son iguales entre sí", "opt_b": "Que la media aritmética es un número grande", "opt_c": "Que los datos están muy dispersos respecto a la media", "answer": "c", "exp": "La desviación estándar mide la dispersión de los datos respecto a su media. Una desviación estándar grande significa que los valores están muy alejados de la media; una pequeña, que están muy concentrados cerca de ella."}, {"q": "¿Cuál es el perímetro de un rectángulo con largo de 12 cm y ancho de 5 cm?", "opt_a": "$60\\text{ cm}$", "opt_b": "$34\\text{ cm}$", "opt_c": "$17\\text{ cm}$", "answer": "b", "exp": "Perímetro del rectángulo $= 2(\\text{largo} + \\text{ancho}) = 2(12+5) = 2(17) = 34\\text{ cm}$."}];
+const REACTIVOS_RI = [{"q": "¿Cuál de las siguientes palabras está <strong>correctamente acentuada</strong> según las reglas de las palabras agudas?", "opt_a": "Examen", "opt_b": "Camión", "opt_c": "Facil", "answer": "b", "exp": "Las palabras <em>agudas</em> llevan tilde cuando terminan en vocal, <em>n</em> o <em>s</em>. 'Camión' termina en <em>n</em> → lleva tilde. 'Examen' también termina en <em>n</em>, pero en su forma escrita actual la RAE no la tilda (grave: e-XA-men, tónica en la penúltima → grave terminada en n → sin tilde). 'Fácil' es grave terminada en <em>l</em> → lleva tilde, pero está escrita sin ella en la opción C."}, {"q": "Selecciona la oración con el uso <strong>correcto</strong> de <em>haber</em> o <em>a ver</em>:", "opt_a": "Voy haver si está listo el pedido.", "opt_b": "Haber si puedes venir mañana.", "opt_c": "Voy a ver si está listo el pedido.", "answer": "c", "exp": "'A ver' (preposición <em>a</em> + verbo <em>ver</em>) se usa para expresar intención de mirar o revisar algo. 'Haber' es verbo auxiliar que nunca funciona como 'a ver'. La oración correcta es: 'Voy <em>a ver</em> si está listo el pedido'."}, {"q": "¿En cuál oración se usan correctamente las comas?", "opt_a": "Compré leche, pan, huevos y mantequilla en el mercado.", "opt_b": "Compré leche pan, huevos, y mantequilla en el mercado.", "opt_c": "Compré, leche, pan huevos y mantequilla en el mercado.", "answer": "a", "exp": "En una enumeración se coloca coma entre cada elemento excepto antes de la última conjunción (<em>y</em>). La opción A sigue esta regla correctamente. La B omite la coma después de 'leche' y la C añade una coma incorrecta después de 'Compré'."}, {"q": "Elige el conector que completa lógicamente la oración:<br>'Estudió toda la semana; <strong>_______</strong>, no logró aprobar el examen.'", "opt_a": "además", "opt_b": "sin embargo", "opt_c": "por lo tanto", "answer": "b", "exp": "'Sin embargo' es un conector de <em>contraste o adversativo</em>: introduce una idea que se opone o contradice la anterior. Aquí se contradice la expectativa (si estudia, debe aprobar). 'Además' suma; 'por lo tanto' indica consecuencia."}, {"q": "Lee las oraciones y elige el orden que forma un párrafo <strong>coherente</strong>:<br>I. Por ello, es fundamental fomentar hábitos de lectura desde temprana edad.<br>II. La lectura desarrolla la capacidad de análisis y el vocabulario.<br>III. Además, fortalece la concentración y la memoria a largo plazo.", "opt_a": "I → III → II", "opt_b": "III → I → II", "opt_c": "II → III → I", "answer": "c", "exp": "Un párrafo bien estructurado presenta primero la <em>idea principal</em> (II: qué hace la lectura), luego la <em>información de apoyo</em> (III: además fortalece...) y finalmente la <em>conclusión o consecuencia</em> (I: por ello es fundamental). El conector 'por ello' en la oración I indica que es conclusiva."}, {"q": "¿En cuál opción <strong>todas</strong> las palabras están escritas correctamente?", "opt_a": "exigir, extranjero, hereje", "opt_b": "exijir, extranjero, hereje", "opt_c": "exigir, estranjero, hereje", "answer": "a", "exp": "'Exigir' se escribe con <em>g</em> (regla: verbos terminados en -<em>gir</em> conservan la <em>g</em> excepto ante <em>a, o</em>). 'Extranjero' lleva <em>j</em> porque el grupo <em>nj</em> siempre usa <em>j</em>. 'Hereje' lleva <em>j</em> (no existe regla que imponga <em>g</em> aquí). Solo la opción A tiene las tres correctas."}, {"q": "¿En cuál oración el uso de la tilde diacrítica es <strong>correcto</strong>?", "opt_a": "Se que llegarás tarde, así que no te espero.", "opt_b": "Sé que llegarás tarde, así que no te espero.", "opt_c": "Se que llegaras tarde, así que no te espero.", "answer": "b", "exp": "'Sé' con tilde es forma del verbo <em>saber</em> (yo sé). 'Se' sin tilde es pronombre reflexivo. En la oración, el sujeto (yo) tiene conocimiento de algo → se usa el verbo → 'Sé'. La tilde diacrítica distingue función gramatical."}, {"q": "Un estudiante necesita redactar un texto que <em>informe objetivamente</em> sobre un evento ocurrido ayer en su escuela. ¿Qué tipo de texto debe producir?", "opt_a": "Una noticia periodística", "opt_b": "Un ensayo argumentativo", "opt_c": "Una reseña crítica", "answer": "a", "exp": "La <em>noticia</em> es el género informativo por excelencia: reporta hechos recientes de forma objetiva, respondiendo a qué, quién, cuándo, dónde y cómo. El ensayo argumentativo expone y defiende una postura personal. La reseña evalúa obras o eventos."}, {"q": "¿Cuál oración tiene <strong>concordancia correcta</strong> entre sujeto y verbo?", "opt_a": "Los datos del informe muestra un aumento en las ventas.", "opt_b": "El equipo de investigadores elaboró sus conclusiones de forma individual.", "opt_c": "Los resultados del experimento confirman la hipótesis inicial.", "answer": "c", "exp": "En la opción C, el sujeto 'Los resultados' (plural) concuerda correctamente con 'confirman' (plural). En A, 'Los datos' (plural) no concuerda con 'muestra' (singular). En B, aunque es correcta gramaticalmente, la expresión 'de forma individual' es contradictoria si hay un equipo (incongruencia semántica)."}, {"q": "En el texto: 'Su labor como escritora fue <strong>conspicua</strong>: ganó cinco premios nacionales', ¿qué palabra puede sustituir a <em>conspicua</em> sin cambiar el sentido?", "opt_a": "discreta", "opt_b": "destacada", "opt_c": "sospechosa", "answer": "b", "exp": "'Conspicuo' significa <em>notable, visible, distinguido</em>. En el contexto de ganar cinco premios, el sentido es de reconocimiento y distinción, por lo que 'destacada' es el sinónimo correcto. 'Discreta' es antónima y 'sospechosa' no tiene relación semántica."}, {"q": "Una estudiante escribe en su solicitud de beca: <em>'Oye maestra, le cuento que me late mucho estudiar medicina y pus quiero que me ayude con la beca.'</em> ¿Cuál es el principal problema de este fragmento?", "opt_a": "Usa un registro coloquial inadecuado para una comunicación formal", "opt_b": "Comete errores de acentuación en varias palabras", "opt_c": "No menciona la carrera que quiere estudiar", "answer": "a", "exp": "Una solicitud de beca es un texto formal que exige un registro culto y respetuoso. Expresiones como 'oye', 'me late' (me agrada) y 'pus' (contracción de 'pues') pertenecen al registro coloquial e informal, inapropiado en este contexto."}, {"q": "¿En cuál oración se usa el <strong>punto y coma correctamente</strong>?", "opt_a": "María estudia medicina; y su hermana biología.", "opt_b": "Llegó tarde al aeropuerto; no obstante, alcanzó su vuelo.", "opt_c": "El niño; jugó toda la tarde en el parque.", "answer": "b", "exp": "El punto y coma se usa correctamente antes de conectores adversativos o concesivos como 'no obstante', 'sin embargo', 'por tanto'. En A, la conjunción 'y' entre dos sujetos no necesita punto y coma. En C, el punto y coma separa incorrectamente el sujeto del predicado."}, {"q": "Lee: 'El director habló con el maestro. <strong>Este</strong> le pidió más tiempo para el proyecto.' ¿A quién se refiere 'este'?", "opt_a": "Al director, porque es el sujeto principal", "opt_b": "A ambos, porque es una situación compartida", "opt_c": "Al maestro, porque 'este' refiere al último sustantivo mencionado", "answer": "c", "exp": "En español, el pronombre demostrativo 'este' (cercano) refiere generalmente al último sustantivo mencionado en el discurso. El último sustantivo antes de 'Este' es 'el maestro', por lo que fue el maestro quien pidió más tiempo."}, {"q": "En la oración: 'El conflicto <strong>subyacente</strong> entre los países era difícil de identificar', ¿cuál es el antónimo de <em>subyacente</em> según el contexto?", "opt_a": "manifiesto", "opt_b": "relevante", "opt_c": "conflictivo", "answer": "a", "exp": "'Subyacente' significa <em>oculto, que está por debajo de la superficie</em>. Su antónimo contextual es 'manifiesto' (evidente, visible, que se puede observar directamente). 'Relevante' es gradación de importancia, no de visibilidad."}, {"q": "¿En cuál oración se usan correctamente las <strong>mayúsculas</strong>?", "opt_a": "El presidente De La República asistió a la Universidad nacional.", "opt_b": "El presidente de la República asistió a la Universidad Nacional Autónoma de México.", "opt_c": "El Presidente de la república asistió a la universidad Nacional Autónoma de México.", "answer": "b", "exp": "Los cargos como 'presidente' van en minúscula cuando no preceden al nombre propio. Los nombres de instituciones ('Universidad Nacional Autónoma de México') llevan mayúscula en cada palabra principal. Solo la opción B aplica correctamente ambas reglas."}];
+const REACTIVOS_CL = [{"q": "¿Cuál es la idea principal del texto?", "opt_a": "La inteligencia artificial debe prohibirse en las escuelas porque reduce el pensamiento crítico.", "opt_b": "La IA tiene potencial transformador en la educación, pero su incorporación requiere condiciones que garanticen equidad y mediación pedagógica.", "opt_c": "Los sistemas de tutoría inteligente como Carnegie Learning han probado ser superiores a los docentes.", "answer": "b", "exp": "El texto no adopta una postura de rechazo total (descarta A) ni de superioridad tecnológica (descarta C). La tesis central, explícita en el último párrafo, es que la IA puede transformar positivamente la educación <em>si</em> se cumplen condiciones de equidad, formación docente y reflexión sobre fines. La opción B resume esta postura equilibrada."}, {"q": "Según el texto, ¿en qué área(s) demostraron mejoras los sistemas de tutoría inteligente desarrollados por Carnegie Learning?", "opt_a": "En matemáticas y ciencias, en contextos de educación secundaria en Estados Unidos.", "opt_b": "En lengua y literatura, en universidades de Europa.", "opt_c": "En todas las asignaturas del currículo escolar a nivel mundial.", "answer": "a", "exp": "El segundo párrafo especifica: 'han demostrado, en contextos de educación secundaria en Estados Unidos, mejoras significativas en el rendimiento de los alumnos en <em>matemáticas y ciencias</em>'. No se menciona lengua, ni Europa, ni un alcance mundial."}, {"q": "¿Qué se puede <strong>inferir</strong> a partir de los estudios publicados en <em>Computers &amp; Education</em> mencionados en el tercer párrafo?", "opt_a": "Que todos los estudiantes que usan IA tienen peores calificaciones.", "opt_b": "Que la revista Computers &amp; Education recomienda eliminar la IA de las escuelas.", "opt_c": "Que el uso excesivo de IA podría generar dependencia tecnológica y limitar el desarrollo del pensamiento autónomo.", "answer": "c", "exp": "Los estudios hallaron 'correlaciones entre el uso excesivo de asistentes de IA y la reducción en la capacidad de resolución autónoma de problemas'. Esto <em>sugiere</em> (no prueba causalmente) el riesgo de dependencia. A exagera ('todos'); B atribuye una recomendación que el texto no menciona."}, {"q": "En el cuarto párrafo, la expresión '<strong>acceso heterogéneo</strong>' a internet y dispositivos significa:", "opt_a": "Un acceso muy avanzado y moderno a tecnología.", "opt_b": "Un acceso desigual y variable según la región o el nivel socioeconómico.", "opt_c": "Un acceso exclusivo para estudiantes de escuelas privadas.", "answer": "b", "exp": "'Heterogéneo' significa <em>compuesto de partes de diferente naturaleza</em>; en este contexto, desigual o no uniforme. El propio texto lo aclara al añadir '—con disparidades profundas entre zonas urbanas y rurales, o entre estratos socioeconómicos—', lo que confirma la opción B."}, {"q": "¿Cuál es la función del quinto párrafo del texto?", "opt_a": "Proponer una vía de solución equilibrada ante las tensiones identificadas: integrar la IA con mediación pedagógica.", "opt_b": "Refutar todos los argumentos en contra de la IA presentados anteriormente.", "opt_c": "Narrar la experiencia de un docente específico que incorporó la IA en su práctica.", "answer": "a", "exp": "El quinto párrafo responde a las críticas planteadas en los párrafos 3 y 4 con una propuesta: integración con mediación pedagógica, donde el docente no es sustituido sino apoyado. Es una función <em>propositiva y moderadora</em>. No refuta totalmente ni narra casos individuales."}, {"q": "En la oración '...la brecha digital. En países como México, donde el acceso a internet y dispositivos tecnológicos sigue siendo heterogéneo <strong>—con disparidades profundas entre zonas urbanas y rurales—</strong>...', ¿para qué se usan los guiones?", "opt_a": "Para indicar un cambio de hablante en un diálogo", "opt_b": "Para señalar que la información entre guiones fue escrita por otro autor", "opt_c": "Para introducir un inciso aclaratorio que especifica el significado de 'heterogéneo'", "answer": "c", "exp": "Los guiones (rayas) delimitan un inciso o aclaración parentética que amplía o precisa la idea principal. Aquí concretan qué significa 'acceso heterogéneo'. No son diálogo ni atribución a otro autor."}, {"q": "¿Cuál de los siguientes enunciados del texto es una <strong>opinión</strong> del autor y no un hecho verificable?", "opt_a": "'En la última década, la inteligencia artificial ha dejado de ser un concepto propio de la ciencia ficción'", "opt_b": "'La tecnología no es neutra; responde a valores, intereses y prioridades'", "opt_c": "'Diversos estudios publicados en revistas especializadas han encontrado correlaciones'", "answer": "b", "exp": "'La tecnología no es neutra' es una <em>valoración filosófica</em> del autor, no un dato empírico verificable. A describe un proceso observable/documentable. C remite a evidencia académica publicada. Solo B expresa una postura interpretativa del autor."}, {"q": "¿Cuál es el propósito comunicativo principal del texto?", "opt_a": "Exponer distintas perspectivas sobre la IA en la educación y argumentar a favor de una incorporación crítica y equitativa.", "opt_b": "Persuadir al lector de que abandone el uso de tecnología en el aula.", "opt_c": "Narrar la historia del desarrollo de la inteligencia artificial desde sus orígenes.", "answer": "a", "exp": "El texto presenta argumentos a favor (párrafo 2), señala riesgos (párrafos 3 y 4), y propone una síntesis (párrafos 5 y 6). Es <em>expositivo-argumentativo</em>: informa y toma una postura moderada. No busca persuadir contra la tecnología (B) ni es narración histórica (C)."}, {"q": "Según el texto, ¿cuál es la relación de causa-efecto que se establece en el cuarto párrafo?", "opt_a": "La IA reduce la brecha digital porque democratiza el acceso a la educación.", "opt_b": "Las escuelas rurales no usan IA porque sus estudiantes no quieren hacerlo.", "opt_c": "La falta de acceso a internet y tecnología en zonas rurales impide que estas escuelas se beneficien de las herramientas de IA.", "answer": "c", "exp": "El texto establece explícitamente: 'Una escuela rural sin conectividad no puede beneficiarse de los mismos recursos que un colegio privado en una ciudad capital.' La causa es la falta de infraestructura tecnológica; el efecto, la exclusión de los beneficios de la IA."}, {"q": "¿A qué tipo de texto pertenece este fragmento y en qué ámbito se inscribe?", "opt_a": "Es un texto literario del ámbito poético, ya que usa recursos expresivos como los guiones.", "opt_b": "Es un texto expositivo-argumentativo del ámbito académico-periodístico, que combina información con una postura crítica.", "opt_c": "Es una crónica de viajes del ámbito de participación social, porque menciona diferentes países.", "answer": "b", "exp": "El texto tiene rasgos del discurso académico-periodístico: cita estudios especializados, usa conectores argumentativos, presenta distintas perspectivas y toma una postura crítica. Su tema es de debate académico global. No es poesía (A) ni crónica de viajes (C) porque no narra experiencias personales de desplazamiento."}];
+const TEXTO_CL     = "<p style=\"font-size:.82rem;font-weight:700;color:#1e8449;margin-bottom:10px\">Lee el siguiente texto y responde las preguntas 1 a 10.</p>\n<div style=\"background:#f8fdf9;border-left:4px solid #1e8449;padding:14px 16px;border-radius:0 8px 8px 0;font-size:.88rem;line-height:1.82;color:#2c3e50\">\n<p style=\"margin-bottom:11px;font-size:.91rem\"><strong>Inteligencia artificial y educación: ¿aliada o amenaza?</strong></p>\n<p style=\"margin-bottom:11px\">En la última década, la inteligencia artificial (IA) ha dejado de ser un concepto propio de la ciencia ficción para convertirse en una realidad cotidiana que permea sectores tan diversos como la medicina, la economía y, de manera creciente, la educación. El debate sobre su incorporación en las aulas no es menor: mientras algunos especialistas la consideran una herramienta transformadora capaz de personalizar el aprendizaje y reducir brechas educativas, otros advierten sobre riesgos que van desde la erosión del pensamiento crítico hasta la profundización de desigualdades socioeconómicas.</p>\n<p style=\"margin-bottom:11px\">Uno de los argumentos más sólidos a favor de la IA en la educación es su capacidad para adaptar los contenidos al ritmo y estilo de aprendizaje de cada estudiante. Los sistemas de tutoría inteligente —como los desarrollados por Carnegie Learning— han demostrado, en contextos de educación secundaria en Estados Unidos, mejoras significativas en el rendimiento de los alumnos en matemáticas y ciencias. Estos sistemas identifican los errores recurrentes de cada estudiante, ajustan el nivel de dificultad de los ejercicios y ofrecen retroalimentación inmediata, funciones que un docente con cuarenta alumnos difícilmente puede cumplir de forma simultánea.</p>\n<p style=\"margin-bottom:11px\">Sin embargo, la incorporación de la IA en las aulas no está exenta de tensiones. Una de las más documentadas es el riesgo de que los estudiantes deleguen el pensamiento en la máquina. Cuando un alumno puede obtener la respuesta de un problema complejo en segundos mediante un programa de IA, la tentación de eludir el proceso de razonamiento es real. Diversos estudios publicados en revistas especializadas, como <em>Computers &amp; Education</em>, han encontrado correlaciones entre el uso excesivo de asistentes de IA y la reducción en la capacidad de resolución autónoma de problemas.</p>\n<p style=\"margin-bottom:11px\">Otro flanco de crítica apunta a la brecha digital. En países como México, donde el acceso a internet y dispositivos tecnológicos sigue siendo heterogéneo —con disparidades profundas entre zonas urbanas y rurales, o entre estratos socioeconómicos—, la implementación masiva de herramientas de IA en las escuelas podría ampliar, en lugar de reducir, las inequidades educativas existentes. Una escuela rural sin conectividad no puede beneficiarse de los mismos recursos que un colegio privado en una ciudad capital.</p>\n<p style=\"margin-bottom:11px\">Frente a estas tensiones, la postura más extendida entre los especialistas no es la de rechazar la IA ni la de adoptarla de forma acrítica, sino la de integrarla con mediación pedagógica. Esto implica que el docente no sea sustituido por la tecnología, sino que la utilice como instrumento para enriquecer su práctica. La IA puede encargarse de tareas repetitivas —corrección de ejercicios, seguimiento de progreso—, mientras el docente se concentra en el desarrollo de habilidades de orden superior: el análisis crítico, la creatividad y la colaboración.</p>\n<p>En definitiva, la inteligencia artificial tiene el potencial de transformar la educación de maneras profundas y positivas, pero ese potencial solo se realizará si su incorporación va acompañada de políticas públicas que garanticen acceso equitativo, de formación docente sólida y de una reflexión constante sobre los fines últimos de la educación. La tecnología no es neutra; responde a valores, intereses y prioridades. La pregunta no es si la IA llegará a las aulas —ya está ahí—, sino bajo qué condiciones y con qué propósitos.</p>\n</div>";
+</script>
+
+<!-- ══ LÓGICA ═════════════════════════════════════════ -->
+<script>
+const BANCO = {
+  PM:{titulo:"Pensamiento Matemático",color:"#1a5276",tiempo:25,texto:null,  reactivos:REACTIVOS_PM},
+  RI:{titulo:"Redacción Indirecta",    color:"#7d6608",tiempo:20,texto:null,  reactivos:REACTIVOS_RI},
+  CL:{titulo:"Comprensión Lectora",   color:"#1e8449",tiempo:15,texto:TEXTO_CL,reactivos:REACTIVOS_CL},
+};
+
+const STATE={area:null,qIdx:0,answers:{},timerSec:0,timerID:null,results:{}};
+const $=id=>document.getElementById(id);
+const show=id=>$(id).style.display='block';
+const hide=id=>$(id).style.display='none';
+
+function typeset(el){if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([el]).catch(console.error);}
+
+/* ── TIMER ── */
+function fmtT(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startTimer(){
+  STATE.timerSec=BANCO[STATE.area].tiempo*60;
+  renderTimer();
+  STATE.timerID=setInterval(()=>{STATE.timerSec--;renderTimer();if(STATE.timerSec<=0){clearInterval(STATE.timerID);timeOut();}},1000);
+}
+function renderTimer(){
+  const tb=$('timer-box');tb.textContent=fmtT(STATE.timerSec);
+  tb.className='timer-box'+(STATE.timerSec<=60?' danger':STATE.timerSec<=180?' warn':'');
+}
+function timeOut(){
+  saveResults();
+  hide('screen-exam');
+  $('timeout-msg').innerHTML=`Se agotó el tiempo para <strong>${BANCO[STATE.area].titulo}</strong>.<br>Las preguntas sin responder se contaron como incorrectas.`;
+  show('screen-timeout');
+}
+function afterTimeout(){returnHome();}
+
+/* ── INICIO ÁREA ── */
+function startArea(area){
+  if(STATE.results[area])return;
+  STATE.area=area;STATE.qIdx=0;STATE.answers={};
+  hide('screen-home');
+  const col=BANCO[area].color;
+  document.documentElement.style.setProperty('--area-col',col);
+  $('exam-label').style.background=col;
+  $('exam-label').textContent=BANCO[area].titulo;
+  $('progress-bar').style.background=col;
+
+  // Texto CL
+  const textoWrap=$('texto-toggle-wrap');
+  if(BANCO[area].texto){
+    textoWrap.style.display='block';
+    $('texto-contenido').innerHTML=BANCO[area].texto;
+  } else {
+    textoWrap.style.display='none';
+  }
+
+  buildNavGrid();
+  show('screen-exam');
+  startTimer();
+  renderQuestion();
+}
+
+function toggleTexto(){
+  const toggle=$('texto-toggle');
+  const contenido=$('texto-contenido');
+  const isOpen=contenido.classList.contains('open');
+  contenido.classList.toggle('open',!isOpen);
+  toggle.classList.toggle('open',!isOpen);
+  toggle.querySelector('span:first-child').textContent=isOpen?'📄 Ver texto de lectura':'📄 Ocultar texto de lectura';
+  if(!isOpen) typeset(contenido);
+}
+
+/* ── GRID DE NAVEGACIÓN ── */
+function buildNavGrid(){
+  const grid=$('nav-grid');grid.innerHTML='';
+  const n=BANCO[STATE.area].reactivos.length;
+  for(let i=0;i<n;i++){
+    const btn=document.createElement('button');
+    btn.className='nav-btn';btn.id='nb-'+i;
+    btn.textContent=i+1;
+    btn.onclick=(()=>{const idx=i;return()=>goTo(idx);})();
+    grid.appendChild(btn);
+  }
+  updateNavGrid();
+}
+
+function updateNavGrid(){
+  const n=BANCO[STATE.area].reactivos.length;
+  for(let i=0;i<n;i++){
+    const btn=$('nb-'+i);if(!btn)continue;
+    let cls='nav-btn';
+    if(STATE.answers.hasOwnProperty(i)){
+      cls+=STATE.answers[i]===BANCO[STATE.area].reactivos[i].answer?' answered':' wrong-nav';
+    }
+    if(i===STATE.qIdx) cls+=' current';
+    btn.className=cls;
+  }
+  // Progreso
+  const answered=Object.keys(STATE.answers).length;
+  const n2=BANCO[STATE.area].reactivos.length;
+  $('progress-bar').style.width=(answered/n2*100)+'%';
+}
+
+/* ── NAVEGAR ── */
+function goTo(idx){
+  const n=BANCO[STATE.area].reactivos.length;
+  if(idx<0||idx>=n)return;
+  STATE.qIdx=idx;
+  renderQuestion();
+}
+
+/* ── RENDERIZAR PREGUNTA ── */
+function renderQuestion(){
+  const qs=BANCO[STATE.area].reactivos;
+  const q=qs[STATE.qIdx];
+  const n=qs.length;
+
+  $('q-num').textContent=`Pregunta ${STATE.qIdx+1} de ${n}`;
+  $('q-text').innerHTML=q.q;
+
+  // Botones de navegación
+  $('btn-prev').disabled=(STATE.qIdx===0);
+  $('btn-next-nav').disabled=(STATE.qIdx===n-1);
+
+  // Botón Entregar: solo visible en la última pregunta
+  const btnEntregar=$('btn-entregar');
+  btnEntregar.style.display=(STATE.qIdx===n-1)?'block':'none';
+
+  // Opciones
+  const container=$('options');container.innerHTML='';
+  const opts=[{l:'A',t:q.opt_a,k:'a'},{l:'B',t:q.opt_b,k:'b'},{l:'C',t:q.opt_c,k:'c'}];
+  const savedKey=STATE.answers.hasOwnProperty(STATE.qIdx)?STATE.answers[STATE.qIdx]:null;
+  const alreadyAnswered=savedKey!==null;
+
+  opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';btn.dataset.key=opt.k;
+    btn.innerHTML=`<span class="opt-letter">${opt.l}</span><span>${opt.t}</span>`;
+    if(alreadyAnswered){
+      btn.disabled=true;
+      const correctKey=q.answer;
+      if(savedKey===correctKey){
+        // Respuesta correcta: verde solo la elegida
+        if(opt.k===correctKey) btn.classList.add('correct');
+      } else {
+        // Respuesta incorrecta: rojo la elegida, verde la correcta
+        if(opt.k===savedKey)   btn.classList.add('wrong');
+        if(opt.k===correctKey) btn.classList.add('correct');
+      }
+    } else {
+      btn.onclick=()=>selectOption(opt.k,btn);
+    }
+    container.appendChild(btn);
+  });
+
+  // Explicación si ya contestó
+  const exp=$('explanation');
+  if(alreadyAnswered&&q.exp){
+    const isOk=savedKey===q.answer;
+    exp.innerHTML=(isOk?'✅ ':'❌ ')+q.exp;
+    exp.className='explanation show'+(isOk?'':' fail');
+  } else {
+    exp.className='explanation';exp.innerHTML='';
+  }
+
+  updateNavGrid();
+  typeset($('screen-exam'));
+}
+
+/* ── SELECCIONAR ── */
+function selectOption(key,clickedBtn){
+  const q=BANCO[STATE.area].reactivos[STATE.qIdx];
+  STATE.answers[STATE.qIdx]=key;
+  const isOk=key===q.answer;
+  document.querySelectorAll('.opt-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.key===q.answer) b.classList.add('correct');
+    if(b===clickedBtn&&!isOk)    b.classList.add('wrong');
+  });
+  const exp=$('explanation');
+  exp.innerHTML=(isOk?'✅ ':'❌ ')+q.exp;
+  exp.className='explanation show'+(isOk?'':' fail');
+  updateNavGrid();
+  typeset(exp);
+}
+
+/* ── ENTREGAR ── */
+function pedirConfirmar(){
+  const n=BANCO[STATE.area].reactivos.length;
+  const pendientes=n-Object.keys(STATE.answers).length;
+  const modal=$('modal-bg');
+  if(pendientes>0){
+    $('modal-msg').innerHTML=`Tienes <strong>${pendientes} pregunta${pendientes>1?'s':''} sin responder</strong>. Se contarán como incorrectas. ¿Deseas entregar de todas formas?`;
+  } else {
+    $('modal-msg').textContent='¿Confirmas que deseas entregar esta área?';
+  }
+  modal.classList.add('open');
+}
+function cerrarModal(){$('modal-bg').classList.remove('open');}
+function confirmarEntrega(){
+  cerrarModal();
+  clearInterval(STATE.timerID);
+  saveResults();
+  returnHome();
+}
+
+/* ── GUARDAR RESULTADOS ── */
+function saveResults(){
+  const area=STATE.area,qs=BANCO[area].reactivos;
+  let correct=0;
+  const responses=qs.map((q,i)=>{
+    const ans=STATE.answers.hasOwnProperty(i)?STATE.answers[i]:null;
+    const isOk=ans===q.answer;
+    if(isOk)correct++;
+    const map={a:q.opt_a,b:q.opt_b,c:q.opt_c};
+    return{q:q.q,userKey:ans,userText:ans?map[ans]:'(sin responder)',correct:map[q.answer],exp:q.exp,isOk};
+  });
+  STATE.results[area]={correct,total:qs.length,responses};
+  const btn=$('btn-'+area);if(btn){btn.classList.add('done');btn.disabled=true;}
+}
+
+/* ── VOLVER AL HOME ── */
+function returnHome(){
+  hide('screen-exam');hide('screen-timeout');
+  const done=Object.keys(STATE.results).length;
+  if(done>0) $('btn-go-results').classList.add('show');
+  if(done===3){showResults();return;}
+  show('screen-home');
+}
+
+/* ── RESULTADOS ── */
+function showResults(){
+  hide('screen-home');show('screen-results');
+  const AREAS=['PM','RI','CL'];
+  const grid=$('score-grid');grid.innerHTML='';
+  AREAS.forEach(area=>{
+    const res=STATE.results[area];if(!res)return;
+    const pct=Math.round(res.correct/res.total*100);
+    const d=document.createElement('div');
+    d.className='score-card';d.style.background=BANCO[area].color;
+    d.innerHTML=`<div class="sc-label">${area}</div><div class="sc-val">${res.correct}/${res.total}</div><div class="sc-sub">${pct}%</div>`;
+    grid.appendChild(d);
+  });
+  // Gráfica
+  const chart=$('chart');chart.innerHTML='';
+  AREAS.forEach(area=>{
+    const res=STATE.results[area];if(!res)return;
+    const pct=Math.round(res.correct/res.total*100);
+    const col=BANCO[area].color;
+    chart.innerHTML+=`<div class="bar-row">
+      <span class="bar-label" style="color:${col}">${area}</span>
+      <div class="bar-track"><div class="bar-fill" id="bf-${area}" style="width:0%;background:${col}">${pct>15?pct+'%':''}</div></div>
+      <span class="bar-pct" style="color:${col}">${pct}%</span></div>`;
+  });
+  setTimeout(()=>AREAS.forEach(area=>{
+    const res=STATE.results[area];if(!res)return;
+    const el=document.getElementById('bf-'+area);
+    if(el)el.style.width=Math.round(res.correct/res.total*100)+'%';
+  }),120);
+  // Revisión
+  const rev=$('review-list');rev.innerHTML='';
+  AREAS.forEach(area=>{
+    const res=STATE.results[area];if(!res)return;
+    const col=BANCO[area].color;
+    const hdr=document.createElement('div');
+    hdr.className='rev-area-hdr';hdr.style.color=col;
+    hdr.textContent=BANCO[area].titulo;rev.appendChild(hdr);
+    res.responses.forEach((r,j)=>{
+      const badge=r.userKey===null?'skip':r.isOk?'ok':'fail';
+      const badgeT=r.userKey===null?'Sin responder':r.isOk?'✓ Correcto':'✗ Incorrecto';
+      const d=document.createElement('div');d.className='rev-item';
+      d.innerHTML=`<div class="rev-header">
+          <span class="rev-badge ${badge}">${badgeT}</span>
+          <span class="rev-num">P${j+1}</span></div>
+        <div class="rev-q">${r.q}</div>
+        <div class="rev-ans">Tu respuesta: <strong style="color:${r.isOk?'#1e8449':'#c0392b'}">${r.userText}</strong>
+          ${!r.isOk?`&nbsp;·&nbsp; Correcta: <strong style="color:#1e8449">${r.correct}</strong>`:''}</div>
+        ${r.exp?`<div class="rev-exp">${r.exp}</div>`:''}`;
+      rev.appendChild(d);
+    });
+  });
+  typeset($('screen-results'));
+}
+
+/* ── REINICIAR ── */
+function goHome(){
+  STATE.results={};STATE.area=null;
+  ['PM','RI','CL'].forEach(a=>{const b=$('btn-'+a);if(b){b.classList.remove('done');b.disabled=false;}});
+  $('btn-go-results').classList.remove('show');
+  hide('screen-results');show('screen-home');
+}
+</script>
+
+</body>
+</html>
